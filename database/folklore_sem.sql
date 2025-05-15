@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: May 15, 2025 at 02:41 AM
+-- Generation Time: May 15, 2025 at 03:50 AM
 -- Server version: 8.0.30
 -- PHP Version: 8.3.9
 
@@ -72,11 +72,20 @@ CREATE TABLE `rating` (
 CREATE TABLE `recipe` (
   `recipe_id` int NOT NULL,
   `recipe_name` varchar(100) NOT NULL,
+  `recipe_preptime` int NOT NULL,
+  `recipe_cookingtime` int NOT NULL,
   `recipe_ingredient` varchar(255) NOT NULL,
   `recipe_cookstep` varchar(255) NOT NULL,
   `image_url` varchar(255) NOT NULL,
   `user_id` int NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table `recipe`
+--
+
+INSERT INTO `recipe` (`recipe_id`, `recipe_name`, `recipe_preptime`, `recipe_cookingtime`, `recipe_ingredient`, `recipe_cookstep`, `image_url`, `user_id`) VALUES
+(1, 'Test 1', 30, 90, 'Test 2, Test 3', 'Test 4, Test 5', 'https://www.malaysia.travel/mt-flmngr/files/Malaysian%20Food%3A%2052%20Top%20Picks/malaysian-food-38.jpg', 1);
 
 -- --------------------------------------------------------
 
@@ -91,6 +100,13 @@ CREATE TABLE `user` (
   `user_password` varchar(50) NOT NULL,
   `user_fullname` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table `user`
+--
+
+INSERT INTO `user` (`user_id`, `username`, `user_email`, `user_password`, `user_fullname`) VALUES
+(1, 'test', 'test@gmail.com', 'test', 'Hanis Sabrina');
 
 --
 -- Indexes for dumped tables
@@ -118,7 +134,8 @@ ALTER TABLE `rating`
 -- Indexes for table `recipe`
 --
 ALTER TABLE `recipe`
-  ADD PRIMARY KEY (`recipe_id`);
+  ADD PRIMARY KEY (`recipe_id`),
+  ADD KEY `fk_user_id` (`user_id`);
 
 --
 -- Indexes for table `user`
@@ -152,13 +169,23 @@ ALTER TABLE `rating`
 -- AUTO_INCREMENT for table `recipe`
 --
 ALTER TABLE `recipe`
-  MODIFY `recipe_id` int NOT NULL AUTO_INCREMENT;
+  MODIFY `recipe_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `user`
 --
 ALTER TABLE `user`
-  MODIFY `user_id` int NOT NULL AUTO_INCREMENT;
+  MODIFY `user_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- Constraints for dumped tables
+--
+
+--
+-- Constraints for table `recipe`
+--
+ALTER TABLE `recipe`
+  ADD CONSTRAINT `fk_user_id` FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`) ON UPDATE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
