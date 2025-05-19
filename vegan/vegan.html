@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="./img/RecipeLogo.jpeg" type="image/x-icon">
+    <link rel="stylesheet" href="../assets/styling/vegan.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" integrity="sha384-HzA7N5fm4+9Y6j2bOq5f5vbYzO+TW0wJRZ8Xqc/dAigq9CvKepQhgrkvmoUvc97P" crossorigin="anonymous">
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDqn7Ld4PdPVziLfmg7OhsjFA-EhN19bYk"></script>
+
+    <title>Forklore</title>
+</head>
+<body>
+
+    <!--- Navigation Bar --
+    <div class="header">
+        <!-- Search Bar -->
+        <div class="title">Find a Recipe<br>
+            <button class="btn"><a href="../chatbot/chatbot.html">Need Help? Ask The ChatBot!</a></button> 
+            
+        </div>
+        <div class="search-wrapper">
+            <div class="fa fa-search"></div>
+            <input type="text" name=""  id="search" placeholder="What do you want to eat?" onkeyup="search()">
+            <div class="fa fa-times" onclick="clearInput()" ></div>
+        </div>
+    </div>
+
+    <!-- Search Results -->
+        <div class="result">
+            <h1>Your Search Result: Vegan</h1>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="card-grid" >
+            <div class="food-list" id="food-list">
+                    <p id="none" style="display: none;">Sorry, the food you were looking for was not available.</p>
+
+                    <div id="recipe-cards">
+                        <div class="card card-shadow">
+                            <div class="card-header card-image">
+                                <img src="../assets/images/buddhabowl.jpg" alt="Recipe Image">
+                            </div>
+                            <div class="card-body">
+                                <h3> Buddha Bowl</h3>
+                            </div>
+                            <div class="card-footer">
+                                <button class="btn"><a href="../recipepage/recipe7.html">Get Recipe</a></button>
+                                <br>
+                                <button class="btn btn-like" onclick="toggleLike(this, 'Buddha Bowl')"><i class="fas fa-heart"></i> Like</button>
+                                <button class="btn btn-location" onclick="viewLocation()"><i class="fas fa-map-marker-alt"></i> Location</button>
+                            </div>
+                        </div>
+
+                    </div>
+                        <div id="recipe-cards">
+                            <div class="card card-shadow">
+                                <div class="card-header card-image">
+                                    <img src="../assets/images/almondmilk.jpg" alt="Recipe Image">
+                                </div>
+                                <div class="card-body">
+                                    <h3> Almond Milk </h3>
+                                </div>
+                                <div class="card-footer">
+                                    <button class="btn"><a href="../recipepage/recipe8.html">Get Recipe</a></button>
+                                    <br>
+                                    <button class="btn btn-like" onclick="toggleLike(this, 'Almond Milk')"><i class="fas fa-heart"></i> Like</button>
+                                    <button class="btn btn-location" onclick="viewLocation()"><i class="fas fa-map-marker-alt"></i> Location</button>
+                                </div>
+                            </div>
+                        </div>
+
+                    
+                        <div id="recipe-cards">
+                            <div class="card card-shadow">
+                                <div class="card-header card-image">
+                                    <img src="../assets/images/vegantaco.jpg" alt="Recipe Image">
+                                </div>
+                                <div class="card-body">
+                                    <h3> Vegan Taco </h3>
+                                </div>
+                                <div class="card-footer">
+                                    <button class="btn"><a href="../recipepage/recipe9.html">Get Recipe</a></button>
+                                    <br>
+                                    <button class="btn btn-like" onclick="toggleLike(this, 'Vegan Taco')"><i class="fas fa-heart"></i> Like</button>
+                                    <button class="btn btn-location" onclick="viewLocation()"><i class="fas fa-map-marker-alt"></i> Location</button>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <div id="recipe-cards">
+                            <div class="card card-shadow">
+                                <div class="card-header card-image">
+                                    <img src="../assets/images/chickpea.jpg" alt="Recipe Image">
+                                </div>
+                                <div class="card-body">
+                                    <h3> Chickpea</h3>
+                                </div>
+                                <div class="card-footer">
+                                    <button class="btn"><a href="../recipe/recipe.html">Get Recipe</a></button>
+                                    <br>
+                                    <button class="btn btn-like" onclick="toggleLike(this, 'Chickpea')"><i class="fas fa-heart"></i> Like</button>
+                                    <button class="btn btn-location" onclick="viewLocation()"><i class="fas fa-map-marker-alt"></i> Location</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="recipe-cards">
+                            <div class="card card-shadow">
+                                <div class="card-header card-image">
+                                    <img src="../assets/images/quinoa.jpg" alt="Recipe Image">
+                                </div>
+                                <div class="card-body">
+                                    <h3> Quinoa </h3>
+                                </div>
+                                <div class="card-footer">
+                                    <button class="btn"><a href="../recipe/recipe.html">Get Recipe</a></button>
+                                    <br>
+                                    <button class="btn btn-like" onclick="toggleLike(this,'Quinoa')"><i class="fas fa-heart"></i> Like</button>
+                                    <button class="btn btn-location" onclick="viewLocation()"><i class="fas fa-map-marker-alt"></i> Location</button>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <div id="recipe-cards">
+                            <div class="card card-shadow">
+                                <div class="card-header card-image">
+                                    <img src="../assets/images/stirfry.jpg" alt="Recipe Image">
+                                </div>
+                                <div class="card-body">
+                                    <h3> Stir Fry</h3>
+                                </div>
+                                <div class="card-footer">
+                                    <button class="btn"><a href="../recipe/recipe.html">Get Recipe</a></button>
+                                    <br>
+                                    <button class="btn btn-like" onclick="toggleLike(this, 'Stir Fry')"><i class="fas fa-heart"></i> Like</button>
+                                    <button class="btn btn-location" onclick="viewLocation()"><i class="fas fa-map-marker-alt"></i> Location</button>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <div id="recipe-cards">
+                            <div class="card card-shadow">
+                                <div class="card-header card-image">
+                                    <img src="../assets/images/lentilsoup.jpg" alt="Recipe Image">
+                                </div>
+                                <div class="card-body">
+                                    <h3> Lentil Soup </h3>
+                                </div>
+                                <div class="card-footer">
+                                    <button class="btn"><a href="../recipe/recipe.html">Get Recipe</a></button>
+                                    <br>
+                                    <button class="btn btn-like" onclick="toggleLike(this, 'Lentil Soup')"><i class="fas fa-heart"></i> Like</button>
+                                    <button class="btn btn-location" onclick="viewLocation()"><i class="fas fa-map-marker-alt"></i> Location</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="recipe-cards">
+                            <div class="card card-shadow">
+                                <div class="card-header card-image">
+                                    <img src="../assets/images/pesto.jpg" alt="Recipe Image">
+                                </div>
+                                <div class="card-body">
+                                    <h3> Pesto Pasta </h3>
+                                </div>
+                                <div class="card-footer">
+                                    <button class="btn"><a href="../recipe/recipe.html">Get Recipe</a></button>
+                                    <br>
+                                    <button class="btn btn-like" onclick="toggleLike(this,'Pesto Pasta')"><i class="fas fa-heart"></i> Like</button>
+                                    <button class="btn btn-location" onclick="viewLocation()"><i class="fas fa-map-marker-alt"></i> Location</button>
+                                </div>
+                            </div>
+                        </div>
+
+                    
+                        <div id="recipe-cards">
+                            <div class="card card-shadow">
+                                <div class="card-header card-image">
+                                    <img src="../assets/images/tofufry.jpg" alt="Recipe Image">
+                                </div>
+                                <div class="card-body">
+                                    <h3> Tofu Fry </h3>
+                                </div>
+                                <div class="card-footer">
+                                    <button class="btn"><a href="../recipe/recipe.html">Get Recipe</a></button>
+                                    <br>
+                                    <button class="btn btn-like" onclick="toggleLike(this,'Tofu Fry')"><i class="fas fa-heart"></i> Like</button>
+                                    <button class="btn btn-location" onclick="viewLocation()"><i class="fas fa-map-marker-alt"></i> Location</button>
+                                </div>
+                            </div>
+                        </div>
+
+            </div> 
+
+            <!--Ending of Main Content-->
+            <button class="btn" onclick="toggleLikedRecipes()">Liked Recipes</button></div>
+        <div id="liked-recipes" style="display: none;">
+            <ul id="liked-recipes-list"></ul>
+        </div>
+</body>
+</html>
+        <div id="map" style="height: 400px;"></div>
+
+<!--Script for Javascript-->
+<script src="../vegan/vegan.js"></script>
+</body>
+</html>
