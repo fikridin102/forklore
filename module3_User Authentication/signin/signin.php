@@ -1,7 +1,7 @@
 <?php
-//fdghfhgfhfghfghfghfghfghfghf
+
 session_start();
-include('../dbconnect.php');
+include('../../dbconnect.php');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = $_POST['username'];
@@ -53,7 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta name="viewport" content="width=device-width" , initial-scale=1.0>
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <Title>Sign Up</Title>
-    <link rel="stylesheet" type="text/css" href="../assets/styling/signin.css">
+    <link rel="stylesheet" type="text/css" href="../../assets/styling/signin.css">
     
 
 
@@ -132,5 +132,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
   </body>
     
- <script src="../signin/signin.js"></script>
+ <script src="signin.js"></script>
 </html>
