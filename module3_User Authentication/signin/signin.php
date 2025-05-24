@@ -3,43 +3,75 @@
 session_start();
 include('../../dbconnect.php');
 
+// Handle logout
+if (isset($_GET['logout'])) {
+    session_destroy();
+    header('Location: signin.php');
+    exit();
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $username = $_POST['username'];
-    $password = $_POST['password'];
+    if (isset($_POST['action'])) {
+        if ($_POST['action'] === 'login') {
+            // Handle login
+            $username = $_POST['username'];
+            $password = $_POST['password'];
 
-    // Protect against SQL injection
-    $username = $conn->real_escape_string($username);
+            // Protect against SQL injection
+            $stmt = $conn->prepare("SELECT * FROM user WHERE username = ?");
+            $stmt->bind_param("s", $username);
+            $stmt->execute();
+            $result = $stmt->get_result();
 
-    // Query to check login credentials
-    $query = "SELECT * FROM users WHERE username = '$username'";
-    $result = $conn->query($query);
+            if ($result->num_rows > 0) {
+                $user = $result->fetch_assoc();
+                $storedPassword = $user['user_password'];
 
-    if ($result->num_rows > 0) {
-        $user = $result->fetch_assoc(); // Fetch user details
-        $storedPassword = $user['userpass'];
+                // Check if password is hashed or not
+                if (password_verify($password, $storedPassword) || $password === $storedPassword) {
+                    // Login successful
+                    $_SESSION['user_id'] = $user['user_id'];
+                    $_SESSION['username'] = $user['username'];
+                    
+                    header('Location: ../../all_recipes.php');
+                    exit();
+                } else {
+                    $error = "Invalid password!";
+                }
+            } else {
+                $error = "User not found!";
+            }
+            $stmt->close();
+        } elseif ($_POST['action'] === 'register') {
+            // Handle registration
+            $username = $_POST['reg_username'];
+            $email = $_POST['reg_email'];
+            $password = $_POST['reg_password'];
 
-        // Check if password is hashed or not
-        if (password_verify($password, $storedPassword)) {
-            // Login successful for hashed password
-            $_SESSION['userID'] = $user['userID'];
-            $_SESSION['username'] = $user['username'];
-            $_SESSION['userRole'] = $user['userRole'];
+            // Check if username already exists
+            $stmt = $conn->prepare("SELECT * FROM user WHERE username = ?");
+            $stmt->bind_param("s", $username);
+            $stmt->execute();
+            $result = $stmt->get_result();
 
-                header('Location: ../choicepage/choice.html');
+            if ($result->num_rows > 0) {
+                $error = "Username already exists!";
+            } else {
+                // Hash the password
+                $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 
-            exit();
-        } elseif ($password === $storedPassword) {
-            // Login successful for plaintext password
-            $_SESSION['userID'] = $user['userID'];
-            $_SESSION['username'] = $user['username'];
-
-                header('Location: ../choicepage/choice.html');
-            exit();
-        } else {
-            $error = "Invalid username, password, or role!";
+                // Insert new user
+                $stmt = $conn->prepare("INSERT INTO user (username, user_email, user_password, userRole) VALUES (?, ?, ?, 'user')");
+                $stmt->bind_param("sss", $username, $email, $hashedPassword);
+                
+                if ($stmt->execute()) {
+                    $success = "Registration successful! Please login.";
+                } else {
+                    $error = "Registration failed!";
+                }
+            }
+            $stmt->close();
         }
-    } else {
-        $error = "Invalid username, password, or role!";
     }
 }
 ?>
@@ -54,6 +86,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <Title>Sign Up</Title>
     <link rel="stylesheet" type="text/css" href="../../assets/styling/signin.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
     
 
 
@@ -66,36 +99,44 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 
 
+          <form action="" method="post" class="sign-in-form">
 
-          <form action="#" method="post" class="sign-in-form">
             <h2 class="title">login</h2>
+            <?php if (isset($error)): ?>
+                <div class="error-message"><?php echo $error; ?></div>
+            <?php endif; ?>
+            <?php if (isset($success)): ?>
+                <div class="success-message"><?php echo $success; ?></div>
+            <?php endif; ?>
+            <input type="hidden" name="action" value="login">
             <div class="input-field">
               <i class="fas fa-user"></i>
-              <input name="username" type="text" placeholder="Username" />
+              <input name="username" type="text" placeholder="Username" required />
             </div>
             <div class="input-field">
               <i class="fas fa-lock"></i>
-              <input name="password" type="password" placeholder="Password" />
+              <input name="password" type="password" placeholder="Password" required />
             </div>
             <button type="submit" id="button-1" class="button">Login</button>
 
           </form>
-          <form action="#" method="post" class="sign-up-form">
+          <form action="" method="post" class="sign-up-form">
             <h2 class="title">Sign up</h2>
+            <input type="hidden" name="action" value="register">
             <div class="input-field">
               <i class="fas fa-user"></i>
-              <input type="text" placeholder="username" />
+              <input name="reg_username" type="text" placeholder="username" required />
             </div>
             <div class="input-field">
               <i class="fas fa-envelope"></i>
-              <input type="email" placeholder="Email" required />
+              <input name="reg_email" type="email" placeholder="Email" required />
               <!-- 'required' attribute ensures that the field must be filled before submitting -->
           </div>
             <div class="input-field">
               <i class="fas fa-lock"></i>
-              <input type="password" placeholder="password" />
+              <input name="reg_password" type="password" placeholder="password" required />
             </div>
-            <button id="button-1" class="button"><a href="../choicepage/choice.html">Sign Up</a></button>
+            <button type="submit" id="button-2" class="button">Sign Up</button>
             <p class="social-text"></p>
             
           </form>
@@ -113,7 +154,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
               Sign up
             </button>
           </div>
-          <img src="img/log.svg" class="image" alt="" />
+          <img src="img/log.svg" class="image" alt="" /> <!-- TODO: Add log.svg or update path -->
         </div>
         <div class="panel right-panel">
           <div class="content">
@@ -126,7 +167,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
               Sign in
             </button>
           </div>
-          <img src="img/register.svg" class="image" alt="" />
+          <img src="img/register.svg" class="image" alt="" /> <!-- TODO: Add register.svg or update path -->
         </div>
       </div>
     </div>
