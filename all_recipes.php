@@ -429,7 +429,7 @@ $error = isset($_GET['error']);
                             Cook: <?php echo htmlspecialchars($row['recipe_cookingtime']); ?> min
                         </div>
                         <div class="btns">
-                            <button class="btn" onclick="window.location.href='recipe/recipe.html?id=<?php echo $row['recipe_id']; ?>'">
+                            <button class="btn" onclick="window.location.href='module2_recipedisplay/recipedetail.php?id=<?php echo $row['recipe_id']; ?>'">
                                 <i class="fas fa-eye"></i> View
                             </button>
                         </div>

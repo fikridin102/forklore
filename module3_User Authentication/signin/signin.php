@@ -44,7 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt->close();
         } elseif ($_POST['action'] === 'register') {
             // Handle registration
-            $username = $_POST['reg_username'];
+            $username = $_POST['reg_username']; 
             $email = $_POST['reg_email'];
             $password = $_POST['reg_password'];
 

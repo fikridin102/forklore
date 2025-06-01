@@ -1,161 +1,216 @@
 <?php
+session_start();
 include('../dbconnect.php');
 
-$query = "SELECT * FROM recipe WHERE recipe_id = 1"; // Change this to the recipe ID you want to display
-$result = $conn->query($query);
+if (!isset($_SESSION['user_id'])) {
+    header("Location: ../module3_User Authentication/signin/signin.php");
+    exit();
+}
 
-$recipe = $result->fetch_assoc();
+$recipe_id = isset($_GET['id']) && is_numeric($_GET['id']) ? intval($_GET['id']) : die('Invalid recipe ID.');
 
+// Fetch recipe
+$stmt = $conn->prepare("SELECT * FROM recipe WHERE recipe_id = ?");
+$stmt->bind_param("i", $recipe_id);
+$stmt->execute();
+$recipe = $stmt->get_result()->fetch_assoc();
+if (!$recipe) die('Recipe not found.');
+
+// Handle rating submission
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['rating'])) {
+    $rating = intval($_POST['rating']);
+    $user_id = $_SESSION['user_id'];
+
+    // Check if rating exists
+    $check_stmt = $conn->prepare("SELECT rating_id FROM rating WHERE recipe_id = ? AND user_id = ?");
+    $check_stmt->bind_param("ii", $recipe_id, $user_id);
+    $check_stmt->execute();
+    $check_result = $check_stmt->get_result();
+
+    if ($check_result->num_rows > 0) {
+        // Update existing rating
+        $update_stmt = $conn->prepare("UPDATE rating SET rating_value = ?, rated_at = NOW() WHERE recipe_id = ? AND user_id = ?");
+        $update_stmt->bind_param("iii", $rating, $recipe_id, $user_id);
+        if ($update_stmt->execute()) {
+            header("Location: recipedetail.php?id=$recipe_id&rating_success=1");
+        } else {
+            header("Location: recipedetail.php?id=$recipe_id&rating_error=1");
+        }
+    } else {
+        // Insert new rating
+        $insert_stmt = $conn->prepare("INSERT INTO rating (recipe_id, user_id, rating_value, rated_at) VALUES (?, ?, ?, NOW())");
+        $insert_stmt->bind_param("iii", $recipe_id, $user_id, $rating);
+        if ($insert_stmt->execute()) {
+            header("Location: recipedetail.php?id=$recipe_id&rating_success=1");
+        } else {
+            header("Location: recipedetail.php?id=$recipe_id&rating_error=1");
+        }
+    }
+    exit();
+}
+
+
+// Fetch average rating
+$rating_stmt = $conn->prepare("SELECT AVG(rating_value) as avg_rating FROM rating WHERE recipe_id = ?");
+$rating_stmt->bind_param("i", $recipe_id);
+$rating_stmt->execute(); // Add this line!
+$rating_result = $rating_stmt->get_result();
+$rating_row = $rating_result->fetch_assoc();
+$avg_rating = $rating_row['avg_rating'] !== null ? round($rating_row['avg_rating'], 1) : null;
+
+// Handle note submission (saved in session)
+if (isset($_POST['note'])) {
+    $_SESSION['note_' . $recipe_id] = trim($_POST['note']);
+}
+
+// Handle comment submission
+if (isset($_POST['comment_text']) && !empty($_POST['comment_text'])) {
+    $comment = trim($_POST['comment_text']);
+    $user_id = $_SESSION['user_id'];
+    $stmt = $conn->prepare("INSERT INTO comment (recipe_id, user_id, comment_text, created_at) VALUES (?, ?, ?, NOW())");
+    $stmt->bind_param("iis", $recipe_id, $user_id, $comment);
+    $stmt->execute();
+    header("Location: recipedetail.php?id=$recipe_id");
+    exit();
+}
+
+// Fetch comments
+$comment_stmt = $conn->prepare("SELECT c.comment_text, c.created_at, u.user_fullname FROM comment c JOIN user u ON c.user_id = u.user_id WHERE c.recipe_id = ? ORDER BY c.created_at DESC");
+$comment_stmt->bind_param("i", $recipe_id);
+$comment_stmt->execute();
+$comments = $comment_stmt->get_result();
 ?>
 
-<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
-<link href='https://fonts.googleapis.com/css?family=Open+Sans:400,600,700' rel='stylesheet' type='text/css'>
-<link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
-<link rel="stylesheet" type="text/css" href="../assets/styling/recipe.css">
-<article class="recipe">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title><?php echo htmlspecialchars($recipe['recipe_name']); ?></title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;400&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Montserrat', Arial, sans-serif;
+            background: #f8f9fa;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 900px;
+            margin: 40px auto;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 16px rgba(0,0,0,0.06);
+            padding: 24px;
+        }
+        h1 {
+            margin-top: 0;
+            font-size: 2rem;
+            color: #333;
+        }
+        .category-badge {
+            display: inline-block;
+            background: rgba(79,140,255,0.9);
+            color: #fff;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            margin-bottom: 12px;
+        }
+        .meta {
+            color: #666;
+            margin-bottom: 12px;
+        }
+        img.recipe-img {
+            width: 100%;
+            border-radius: 8px;
+            margin-bottom: 16px;
+        }
+        h2 {
+            color: #4f8cff;
+            margin-top: 24px;
+        }
+        ul, ol {
+            margin-top: 8px;
+        }
+        .comments {
+            background: #f1f5fb;
+            padding: 16px;
+            border-radius: 8px;
+            margin-top: 24px;
+        }
+        .comment {
+            border-bottom: 1px solid #ccc;
+            padding: 8px 0;
+        }
+        .comment:last-child {
+            border-bottom: none;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1><?php echo htmlspecialchars($recipe['recipe_name']); ?></h1>
+    <span class="category-badge"><?php echo htmlspecialchars($recipe['category'] ?? 'Uncategorized'); ?></span>
+    <div class="meta"><i class="fas fa-clock"></i> Prep: <?php echo $recipe['recipe_preptime']; ?> min | Cook: <?php echo $recipe['recipe_cookingtime']; ?> min</div>
+    <img src="<?php echo htmlspecialchars($recipe['image_url']); ?>" alt="Recipe Image" class="recipe-img">
 
-<h1>
-<?php echo $recipe['recipe_name']; ?>
-</h1>
+    <h2>Ingredients</h2>
+    <ul><?php foreach (explode(',', $recipe['recipe_ingredient']) as $ing) echo "<li>" . htmlspecialchars(trim($ing)) . "</li>"; ?></ul>
+    <h2>Directions</h2>
+    <ol><?php foreach (explode(',', $recipe['recipe_cookstep']) as $step) echo "<li>" . htmlspecialchars(trim($step)) . "</li>"; ?></ol>
 
-<div class="stars">
-	<p class="rate">Rate my recipe :</p>
-	<i class="fa fa-star"></i>
-	<i class="fa fa-star"></i>
-	<i class="fa fa-star"></i>
-	<i class="fa fa-star"></i>
-	<i class="fa fa-star-half-o"></i>
-</div>
+    <h2>Average Rating: <?php echo $avg_rating !== null ? $avg_rating . "/5" : "Not yet rated"; ?></h2>
+    <form method="post">
+        <label>Rate this recipe:</label>
+        <select name="rating" required>
+            <option value="">Select</option><?php for($i=1;$i<=5;$i++) echo "<option value='$i'>$i</option>"; ?>
+        </select>
+        <button type="submit">Submit Rating</button>
+    </form>
 
-<div class="time">
-	<p><i class="fa fa-clock-o"></i> Prep Time      :   <?php echo $recipe['recipe_preptime']; ?> min </p>
-	<p><i class="fa fa-clock-o"></i> Cooking Time   :   <?php echo $recipe['recipe_cookingtime']; ?> min </p>
-</div>
+    <h2>Your Notes (session)</h2>
+    <form method="post">
+        <textarea name="note" rows="3" cols="40"><?php echo htmlspecialchars($_SESSION['note_'.$recipe_id] ?? ''); ?></textarea><br>
+        <button type="submit">Save Notes</button>
+    </form>
 
-<div class="recipe-image">
-	<div class="ingredient-image">
-	</div>
-	<img src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/3/chili.jpg">
-	<p class="quote" >My grandpappy used to make this chili over the campfire under the Texas stars. The secret ingredient was a little squeeze of scorpion venom in the pot.<span class="cite">-Chris</span></p>
-</div>
-
-<div class="recipe-text">
-	<h2>Ingredients <i class="slidetoggle fa fa-arrow-up right"></i></h2>
-	<div class="inner-text">
-		<h3></h3>
-		<ul class="need">
-			<li data-image="http://www.lowellprovisionco.com/files/Ground_buffalo.jpg">
-				<i class="fa fa-square-o"></i>
-				<strong>1lb</strong>
-				ground bison
-			</li>
-			<li data-image="http://www.markon.com/sites/default/files/styles/product_banner/public/prdimg/RSS_Onions_Ylw_Diced_0.jpg">
-				<i class="fa fa-square-o"></i>
-				<strong>1 cup</strong>
-				diced onion
-			</li>
-			<li data-image="http://www.mredepot.com/catalog/jalapenos%20diced%20(2).jpg">
-				<i class="fa fa-square-o"></i>
-				<strong>4</strong>
-				diced jalepeños
-			</li>
-			<li data-image="http://anniegreenjeans.com/wp-content/uploads/2009/08/black-beans.jpg">
-				<i class="fa fa-square-o"></i>
-				<strong>1 cup</strong>
-				black beans
-			</li>
-			<li data-image="http://www.zarina.ca/uploads/temp/img8902356.jpg">
-				<i class="fa fa-square-o"></i>
-				<strong>1 cup</strong>
-				great northern beans
-			</li>
-			<li data-image="http://www.iknowlegumes.com/images/beans/original/kidney-beans.jpg">
-				<i class="fa fa-square-o"></i>
-				<strong>1 cup</strong>
-				kidney beans
-			</li>
-			<li data-image="http://www.canningbasics.com/images/pintobeans.jpg">
-				<i class="fa fa-square-o"></i>
-				<strong>1 cup</strong>
-				pinto beans
-			</li>
-			<li data-image="http://lukehoney.typepad.com/photos/uncategorized/2008/03/20/garlic1.jpg">
-				<i class="fa fa-square-o"></i>
-				<strong>4 cloves</strong>
-				garlic
-			</li>
-			<li data-image="http://img.21food.com/20110609/descript/1307124583020.JPG">
-				<i class="fa fa-square-o"></i>
-				<strong>2 tbsp</strong>
-				mexican chili powder
-			</li>
-			<li data-image="http://www.ericcressey.com/wp-content/uploads/2012/01/DenSalt.jpg">
-				<i class="fa fa-square-o"></i>
-				<strong>2 tsp</strong>
-				salt
-			</li>
-			<li data-image="http://www.bigoven.com/uploads/groundpepper.jpg">
-				<i class="fa fa-square-o"></i>
-				<strong>2 tsp</strong>
-				ground pepper
-			</li>
-			<li data-image="http://www.infiniteunknown.net/wp-content/uploads/2011/03/cayenne-pepper-the-king-of-herbs.jpg">
-				<i class="fa fa-square-o"></i>
-				<strong>1 tsp</strong>
-				cayenne
-			</li>
-			<li data-image="http://www.freeenterprise.com/sites/default/files/styles/large/public/media/00_GOVT_shutterstock_83682121_Budget_800px.jpg?itok=tYArc6g3">
-				<i class="fa fa-square-o"></i>
-				<strong >28oz</strong>
-				smushed tomatoes
-			</li>
-			<li data-image="http://www.bonappetit.com/wp-content/uploads/2008/08/ttar_beefbroth_h.jpg">
-				<i class="fa fa-square-o"></i>
-				<strong >3 cups</strong>
-				beef broth
-			</li>
-		</ul>
-		<div class="ingredients-have">
-			<h2>You currently have in your basket</h2>
-			<ul class="got">
-			</ul>
-		</div>
-	</div>
-</div>
-
-<div class="recipe-directions">
-	<h2>Directions <i class="slidetoggle fa fa-arrow-up right"></i></h2>
-	<div class="inner-directions">
-		<ol>
-			<li>Get your filthiest campfire-scorched Dutch oven over the fire the best you can situate it.</li>
-			<li>Brown the bison.</li>
-			<li>Add the diced onion and spices, sautee until soft.</li>
-			<li>Add tomatoes and broth and bring to a simmer for 40 minutes.</li>
-			<li>Add beans and cook another 30 minutes.</li>
-			<li>Serve with Tabasco and a giant spoon.</li>
-		</ol>
-	</div>
-</div>
-
-<div class="comments">
-    <h2>How did your four-bean chili go? <i class="slidetoggle fa fa-arrow-up right"></i></h2>
-    <div class="inner-comments">
-        <form id="comment-form">
-            <label for="comment-name">Your Name:</label>
-            <input type="text" id="comment-name" placeholder="Your Name" required />
-            <label for="comment-content">Your Comment:</label>
-            <textarea id="comment-content" placeholder="Your Comment" required></textarea>
-            <button type="submit">Add Comment</button>
+    <div class="comments">
+        <h2>Comments</h2>
+        <form method="post">
+            <textarea name="comment_text" required placeholder="Add a comment..."></textarea><br>
+            <button type="submit">Submit Comment</button>
         </form>
-        <div id="comment-thread"></div>
+        <?php if($comments->num_rows>0): foreach($comments as $c): ?>
+            <div class="comment">
+                <strong><?php echo htmlspecialchars($c['user_fullname'] ?? ''); ?></strong> (<?php echo $c['created_at']; ?>)
+                <p><?php echo nl2br(htmlspecialchars($c['comment_text'])); ?></p>
+            </div>
+        <?php endforeach; else: echo "<p>No comments yet.</p>"; endif; ?>
     </div>
 </div>
-</article>
-<div>
-	
-	<textarea>Add Your Own Notes Here! </textarea>
 
-<div id="create">+</div>
-</div>
+<div id="popup-message" style="display:none;position:fixed;top:20px;right:20px;background:#4CAF50;color:white;padding:10px 20px;border-radius:8px;box-shadow:0 2px 10px rgba(0,0,0,0.1);z-index:1000;"></div>
+<script>
+window.onload = function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const popup = document.getElementById('popup-message');
+    if (urlParams.has('rating_success')) {
+        popup.textContent = "Your rating has been submitted successfully!";
+        popup.style.background = "#4CAF50"; // Green
+        popup.style.display = "block";
+    } else if (urlParams.has('rating_error')) {
+        popup.textContent = "Failed to submit your rating. Please try again.";
+        popup.style.background = "#e74c3c"; // Red
+        popup.style.display = "block";
+    }
+    if (popup.style.display === "block") {
+        setTimeout(() => { popup.style.display = "none"; }, 3000); // Hide after 3s
+    }
+};
+</script>
 
-<script src="../recipe/recipe.js"></script>
+</body>
+</html>
+<?php
+$stmt->close();
