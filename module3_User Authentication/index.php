@@ -2,80 +2,6 @@
 
 include('../dbconnect.php');
 
-<<<<<<< HEAD:module3_User Authentication/index.php
-=======
-// Handle logout
-if (isset($_GET['logout'])) {
-    session_destroy();
-    header('Location: signin.php');
-    exit();
-}
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (isset($_POST['action'])) {
-        if ($_POST['action'] === 'login') {
-            // Handle login
-            $username = $_POST['username'];
-            $password = $_POST['password'];
-
-            // Protect against SQL injection
-            $stmt = $conn->prepare("SELECT * FROM user WHERE username = ?");
-            $stmt->bind_param("s", $username);
-            $stmt->execute();
-            $result = $stmt->get_result();
-
-            if ($result->num_rows > 0) {
-                $user = $result->fetch_assoc();
-                $storedPassword = $user['user_password'];
-
-                // Check if password is hashed or not
-                if (password_verify($password, $storedPassword) || $password === $storedPassword) {
-                    // Login successful
-                    $_SESSION['user_id'] = $user['user_id'];
-                    $_SESSION['username'] = $user['username'];
-                    
-                    header('Location: ../../all_recipes.php');
-                    exit();
-                } else {
-                    $error = "Invalid password!";
-                }
-            } else {
-                $error = "User not found!";
-            }
-            $stmt->close();
-        } elseif ($_POST['action'] === 'register') {
-            // Handle registration
-            $username = $_POST['reg_username']; 
-            $email = $_POST['reg_email'];
-            $password = $_POST['reg_password'];
-
-            // Check if username already exists
-            $stmt = $conn->prepare("SELECT * FROM user WHERE username = ?");
-            $stmt->bind_param("s", $username);
-            $stmt->execute();
-            $result = $stmt->get_result();
-
-            if ($result->num_rows > 0) {
-                $error = "Username already exists!";
-            } else {
-                // Hash the password
-                $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-
-                // Insert new user
-                $stmt = $conn->prepare("INSERT INTO user (username, user_email, user_password, userRole) VALUES (?, ?, ?, 'user')");
-                $stmt->bind_param("sss", $username, $email, $hashedPassword);
-                
-                if ($stmt->execute()) {
-                    $success = "Registration successful! Please login.";
-                } else {
-                    $error = "Registration failed!";
-                }
-            }
-            $stmt->close();
-        }
-    }
-}
->>>>>>> 53cd198f3508578a2b701b1c58010cafb79da0db:module3_User Authentication/signin/signin.php
 ?>
 
 
@@ -87,12 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta name="viewport" content="width=device-width" , initial-scale=1.0>
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <Title>Sign Up</Title>
-<<<<<<< HEAD:module3_User Authentication/index.php
     <link rel="stylesheet" type="text/css" href="../assets/styling/signin.css">
-=======
-    <link rel="stylesheet" type="text/css" href="../../assets/styling/signin.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
->>>>>>> 53cd198f3508578a2b701b1c58010cafb79da0db:module3_User Authentication/signin/signin.php
     
 
 
@@ -105,12 +26,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 
 
-          <form action="" method="post" class="sign-in-form">
-
-<<<<<<< HEAD:module3_User Authentication/index.php
+ 
           <form action="login.php" method="POST" class="sign-in-form">
-=======
->>>>>>> 53cd198f3508578a2b701b1c58010cafb79da0db:module3_User Authentication/signin/signin.php
             <h2 class="title">login</h2>
             <?php if (isset($error)): ?>
                 <div class="error-message"><?php echo $error; ?></div>
@@ -130,7 +47,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <button type="submit" id="button-1" class="button">Login</button>
 
           </form>
-<<<<<<< HEAD:module3_User Authentication/index.php
           <form action="register.php" method="post" class="sign-up-form">
             <h2 class="title">Sign up</h2>
               <div class="input-field">
@@ -144,31 +60,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="input-field">
               <i class="fas fa-envelope"></i>
               <input type="email" name="user_email" placeholder="Email" required />
-=======
-          <form action="" method="post" class="sign-up-form">
-            <h2 class="title">Sign up</h2>
-            <input type="hidden" name="action" value="register">
-            <div class="input-field">
-              <i class="fas fa-user"></i>
-              <input name="reg_username" type="text" placeholder="username" required />
-            </div>
-            <div class="input-field">
-              <i class="fas fa-envelope"></i>
-              <input name="reg_email" type="email" placeholder="Email" required />
->>>>>>> 53cd198f3508578a2b701b1c58010cafb79da0db:module3_User Authentication/signin/signin.php
               <!-- 'required' attribute ensures that the field must be filled before submitting -->
           </div>
             <div class="input-field">
               <i class="fas fa-lock"></i>
-<<<<<<< HEAD:module3_User Authentication/index.php
               <input type="password" name="password" placeholder="Password" />
             </div>
             <button id="button-1" type="submit" class="button">Sign Up<</button>
-=======
-              <input name="reg_password" type="password" placeholder="password" required />
-            </div>
-            <button type="submit" id="button-2" class="button">Sign Up</button>
->>>>>>> 53cd198f3508578a2b701b1c58010cafb79da0db:module3_User Authentication/signin/signin.php
             <p class="social-text"></p>
             
           </form>

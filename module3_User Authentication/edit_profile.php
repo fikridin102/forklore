@@ -260,7 +260,7 @@ body {
 
     <div class="sidenav-url">
         <div class="url">
-            <a href="profile.php">Back to Profile</a>
+            <a href="user_profile.php">Back to Profile</a>
             <hr align="center">
         </div>
     </div>
