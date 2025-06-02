@@ -1,47 +1,7 @@
 <?php
 
-session_start();
-include('../../dbconnect.php');
+include('../dbconnect.php');
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $username = $_POST['username'];
-    $password = $_POST['password'];
-
-    // Protect against SQL injection
-    $username = $conn->real_escape_string($username);
-
-    // Query to check login credentials
-    $query = "SELECT * FROM users WHERE username = '$username'";
-    $result = $conn->query($query);
-
-    if ($result->num_rows > 0) {
-        $user = $result->fetch_assoc(); // Fetch user details
-        $storedPassword = $user['userpass'];
-
-        // Check if password is hashed or not
-        if (password_verify($password, $storedPassword)) {
-            // Login successful for hashed password
-            $_SESSION['userID'] = $user['userID'];
-            $_SESSION['username'] = $user['username'];
-            $_SESSION['userRole'] = $user['userRole'];
-
-                header('Location: ../choicepage/choice.html');
-
-            exit();
-        } elseif ($password === $storedPassword) {
-            // Login successful for plaintext password
-            $_SESSION['userID'] = $user['userID'];
-            $_SESSION['username'] = $user['username'];
-
-                header('Location: ../choicepage/choice.html');
-            exit();
-        } else {
-            $error = "Invalid username, password, or role!";
-        }
-    } else {
-        $error = "Invalid username, password, or role!";
-    }
-}
 ?>
 
 
@@ -53,7 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta name="viewport" content="width=device-width" , initial-scale=1.0>
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <Title>Sign Up</Title>
-    <link rel="stylesheet" type="text/css" href="../../assets/styling/signin.css">
+    <link rel="stylesheet" type="text/css" href="../assets/styling/signin.css">
     
 
 
@@ -67,7 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 
 
-          <form action="#" method="post" class="sign-in-form">
+          <form action="login.php" method="POST" class="sign-in-form">
             <h2 class="title">login</h2>
             <div class="input-field">
               <i class="fas fa-user"></i>
@@ -80,22 +40,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <button type="submit" id="button-1" class="button">Login</button>
 
           </form>
-          <form action="#" method="post" class="sign-up-form">
+          <form action="register.php" method="post" class="sign-up-form">
             <h2 class="title">Sign up</h2>
+              <div class="input-field">
+              <i class="fas fa-user"></i>
+              <input type="text" name="user_fullname" placeholder="Full Name" />
+            </div>
             <div class="input-field">
               <i class="fas fa-user"></i>
-              <input type="text" placeholder="username" />
+              <input type="text" name="username" placeholder="Username" />
             </div>
             <div class="input-field">
               <i class="fas fa-envelope"></i>
-              <input type="email" placeholder="Email" required />
+              <input type="email" name="user_email" placeholder="Email" required />
               <!-- 'required' attribute ensures that the field must be filled before submitting -->
           </div>
             <div class="input-field">
               <i class="fas fa-lock"></i>
-              <input type="password" placeholder="password" />
+              <input type="password" name="password" placeholder="Password" />
             </div>
-            <button id="button-1" class="button"><a href="../choicepage/choice.html">Sign Up</a></button>
+            <button id="button-1" type="submit" class="button">Sign Up<</button>
             <p class="social-text"></p>
             
           </form>
