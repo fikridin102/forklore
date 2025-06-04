@@ -146,6 +146,19 @@ $comments = $comment_stmt->get_result();
         .comment:last-child {
             border-bottom: none;
         }
+        .ingredient-item {
+            cursor: pointer;
+            padding: 6px;
+            transition: 0.2s;
+        }
+        .ingredient-item:hover {
+            background: #f0f8ff;
+        }
+        #ingredient-have .ingredient-item {
+            text-decoration: line-through;
+            color: #4CAF50;
+        }
+
     </style>
 </head>
 <body>
@@ -155,8 +168,18 @@ $comments = $comment_stmt->get_result();
     <div class="meta"><i class="fas fa-clock"></i> Prep: <?php echo $recipe['recipe_preptime']; ?> min | Cook: <?php echo $recipe['recipe_cookingtime']; ?> min</div>
     <img src="<?php echo htmlspecialchars($recipe['image_url']); ?>" alt="Recipe Image" class="recipe-img">
 
-    <h2>Ingredients</h2>
-    <ul><?php foreach (explode(',', $recipe['recipe_ingredient']) as $ing) echo "<li>" . htmlspecialchars(trim($ing)) . "</li>"; ?></ul>
+    <h2>Ingredients Needed</h2>
+    <ul id="ingredient-need">
+        <?php foreach (explode(',', $recipe['recipe_ingredient']) as $index => $ing): ?>
+            <li class="ingredient-item" data-index="<?= $index ?>">
+                <?= htmlspecialchars(trim($ing)); ?>
+            </li>
+        <?php endforeach; ?>
+    </ul>
+
+    <h2>You Have These Ingredients</h2>
+    <ul id="ingredient-have"></ul>
+
     <h2>Directions</h2>
     <ol><?php foreach (explode(',', $recipe['recipe_cookstep']) as $step) echo "<li>" . htmlspecialchars(trim($step)) . "</li>"; ?></ol>
 
@@ -192,22 +215,54 @@ $comments = $comment_stmt->get_result();
 
 <div id="popup-message" style="display:none;position:fixed;top:20px;right:20px;background:#4CAF50;color:white;padding:10px 20px;border-radius:8px;box-shadow:0 2px 10px rgba(0,0,0,0.1);z-index:1000;"></div>
 <script>
-window.onload = function() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const popup = document.getElementById('popup-message');
-    if (urlParams.has('rating_success')) {
-        popup.textContent = "Your rating has been submitted successfully!";
-        popup.style.background = "#4CAF50"; // Green
-        popup.style.display = "block";
-    } else if (urlParams.has('rating_error')) {
-        popup.textContent = "Failed to submit your rating. Please try again.";
-        popup.style.background = "#e74c3c"; // Red
-        popup.style.display = "block";
+    window.onload = function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const popup = document.getElementById('popup-message');
+        if (urlParams.has('rating_success')) {
+            popup.textContent = "Your rating has been submitted successfully!";
+            popup.style.background = "#4CAF50"; // Green
+            popup.style.display = "block";
+        } else if (urlParams.has('rating_error')) {
+            popup.textContent = "Failed to submit your rating. Please try again.";
+            popup.style.background = "#e74c3c"; // Red
+            popup.style.display = "block";
+        }
+        if (popup.style.display === "block") {
+            setTimeout(() => { popup.style.display = "none"; }, 3000); // Hide after 3s
+        }
+    };
+
+
+    // Ingredient check functionality
+    function saveCheckedIngredients() {
+        const checked = Array.from(document.querySelectorAll('#ingredient-have .ingredient-item'))
+            .map(item => item.dataset.index);
+        localStorage.setItem('recipe_<?php echo $recipe_id; ?>_checked', JSON.stringify(checked));
     }
-    if (popup.style.display === "block") {
-        setTimeout(() => { popup.style.display = "none"; }, 3000); // Hide after 3s
+
+    function loadCheckedIngredients() {
+        const saved = JSON.parse(localStorage.getItem('recipe_<?php echo $recipe_id; ?>_checked') || '[]');
+        const allItems = document.querySelectorAll('#ingredient-need .ingredient-item');
+        saved.forEach(i => {
+            const el = document.querySelector(`#ingredient-need .ingredient-item[data-index='${i}']`);
+            if (el) document.getElementById('ingredient-have').appendChild(el);
+        });
     }
-};
+
+    // Toggle ingredient between "need" and "have"
+    document.addEventListener("DOMContentLoaded", function () {
+        loadCheckedIngredients();
+
+        document.querySelectorAll('.ingredient-item').forEach(item => {
+            item.addEventListener('click', () => {
+                const targetList = item.parentElement.id === 'ingredient-need'
+                    ? document.getElementById('ingredient-have')
+                    : document.getElementById('ingredient-need');
+                targetList.appendChild(item);
+                saveCheckedIngredients();
+            });
+        });
+    });
 </script>
 
 </body>

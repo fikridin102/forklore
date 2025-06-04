@@ -23,7 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['user_id'] = $user['user_id'];
             $_SESSION['username'] = $user['username'];
 
-                header('Location: user_profile.php');
+                header('Location: ../all_recipes.php');
 
             exit();
         } elseif ($password === $storedPassword) {
@@ -31,7 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['user_id'] = $user['user_id'];
             $_SESSION['username'] = $user['username'];
 
-                header('Location:  user_profile.php');
+                header('Location:  ../all_recipes.php');
             exit();
         } else {
             $error = "Invalid username, password, or role!";
