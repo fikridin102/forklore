@@ -27,6 +27,19 @@ $user = $result->fetch_assoc();
     <div class="title">
         <h1>Profile</h1>
     </div>
+    <div style="position:absolute; left:20px; top:20px;">
+        <a href="../all_recipes.php" style="
+            text-decoration: none;
+            background: #4f8cff;
+            color: white;
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-family: 'Poppins', sans-serif;
+        ">
+            ← Back to Home Page
+        </a>
+    </div>
 </div>
 
 <div class="sidenav">

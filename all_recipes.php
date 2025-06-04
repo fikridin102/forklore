@@ -349,6 +349,9 @@ $error = isset($_GET['error']);
         <h1>All Recipes</h1>
         <div class="user-info-bar">
             <span class="welcome-msg">Welcome, <?php echo htmlspecialchars($_SESSION['username'] ?? 'User'); ?></span>
+            <a href="module3_User Authentication/user_profile.php" class="btn logout-btn">
+                <i class="fas fa-user-circle"></i> My Profile
+            </a>
             <a href="module3_User Authentication/signin/signin.php?logout=1" class="btn logout-btn">
                 <i class="fas fa-sign-out-alt"></i> Logout
             </a>
