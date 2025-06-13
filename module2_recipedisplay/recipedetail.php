@@ -166,11 +166,11 @@ $comments = $comment_stmt->get_result();
     <h1><?php echo htmlspecialchars($recipe['recipe_name']); ?></h1>
     <span class="category-badge"><?php echo htmlspecialchars($recipe['category'] ?? 'Uncategorized'); ?></span>
     <div class="meta"><i class="fas fa-clock"></i> Prep: <?php echo $recipe['recipe_preptime']; ?> min | Cook: <?php echo $recipe['recipe_cookingtime']; ?> min</div>
-    <img src="<?php echo htmlspecialchars($recipe['image_url']); ?>" alt="Recipe Image" class="recipe-img">
+    <img src="../<?php echo htmlspecialchars($recipe['image_url']); ?>" alt="Recipe Image" class="recipe-img">
 
     <h2>Ingredients Needed</h2>
     <ul id="ingredient-need">
-        <?php foreach (explode(',', $recipe['recipe_ingredient']) as $index => $ing): ?>
+        <?php foreach (explode("\r\n", $recipe['recipe_ingredient']) as $index => $ing): ?>
             <li class="ingredient-item" data-index="<?= $index ?>">
                 <?= htmlspecialchars(trim($ing)); ?>
             </li>
@@ -181,7 +181,7 @@ $comments = $comment_stmt->get_result();
     <ul id="ingredient-have"></ul>
 
     <h2>Directions</h2>
-    <ol><?php foreach (explode(',', $recipe['recipe_cookstep']) as $step) echo "<li>" . htmlspecialchars(trim($step)) . "</li>"; ?></ol>
+    <ol><?php foreach (explode("\r\n", $recipe['recipe_cookstep']) as $step) echo "<li>" . htmlspecialchars(trim($step)) . "</li>"; ?></ol>
 
     <h2>Average Rating: <?php echo $avg_rating !== null ? $avg_rating . "/5" : "Not yet rated"; ?></h2>
     <form method="post">
