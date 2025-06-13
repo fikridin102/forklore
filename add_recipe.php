@@ -1,5 +1,6 @@
 <?php
 include('dbconnect.php');
+session_start();
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Get form data
@@ -74,7 +75,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt->bind_param("ssiisssi", $recipe_name, $category, $recipe_preptime, $recipe_cookingtime, $recipe_ingredient, $recipe_cookstep, $target_file, $user_id);
         
         if ($stmt->execute()) {
-            header("Location: all_recipes.php?success=1");
+            $_SESSION['success'] = true;
+            header('Location: all_recipes.php');
+            exit();
         } else {
             // If database insert fails, delete the uploaded file
             unlink($target_file);
