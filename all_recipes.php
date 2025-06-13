@@ -434,6 +434,9 @@ $error = isset($_GET['error']);
         <h1>All Recipes</h1>
         <div class="user-info-bar">
             <span class="welcome-msg">Welcome, <?php echo htmlspecialchars($_SESSION['username'] ?? 'User'); ?></span>
+            <a href="module3_User Authentication/user_profile.php" class="btn logout-btn">
+                <i class="fas fa-user-circle"></i> My Profile
+            </a>
             <a href="module3_User Authentication/signin/signin.php?logout=1" class="btn logout-btn">
                 <i class="fas fa-sign-out-alt"></i> Logout
             </a>
@@ -513,7 +516,7 @@ $error = isset($_GET['error']);
                             Cook: <?php echo htmlspecialchars($row['recipe_cookingtime']); ?> min
                         </div>
                         <div class="btns">
-                            <button class="btn" onclick="window.location.href='recipe/recipe.html?id=<?php echo $row['recipe_id']; ?>'">
+                            <button class="btn" onclick="window.location.href='module2_recipedisplay/recipedetail.php?id=<?php echo $row['recipe_id']; ?>'">
                                 <i class="fas fa-eye"></i> View
                             </button>
                         </div>

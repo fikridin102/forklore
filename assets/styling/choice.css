@@ -1,3 +1,6 @@
+
+
+
 body {
     align-items: center;
     background: #708fd4;
@@ -13,6 +16,27 @@ body {
 	margin-bottom: 40px;
 	border-bottom: 1px dashed rgba(font-color,.15);
 }
+
+        .logout-button {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            background-color: #ff4d4d;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            font-family: inherit;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s;
+        }
+
+        .logout-button:hover {
+            background-color: #cc0000;
+        }
+
+        
 .button {
     width: 150px;
     background-color:palevioletred;
@@ -135,3 +159,6 @@ body {
   .label.active {
     color: white;
   }
+
+
+
