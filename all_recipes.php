@@ -34,7 +34,11 @@ if ($params) {
 }
 $stmt->execute();
 $result = $stmt->get_result();
-$success = isset($_GET['success']);
+$show_success = false;
+if (isset($_SESSION['success'])) {
+    $show_success = true;
+    unset($_SESSION['success']);
+}
 $error = isset($_GET['error']);
 ?>
 
@@ -100,14 +104,24 @@ $error = isset($_GET['error']);
             background: #4f8cff;
             color: #fff;
             border: none;
-            padding: 8px 18px;
-            border-radius: 4px;
-            font-size: 1rem;
+            padding: 0 26px 0 18px;
+            border-radius: 10px;
+            font-size: 1.08rem;
+            font-weight: 500;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
             cursor: pointer;
             transition: background 0.2s;
+            box-shadow: none;
+            margin-left: 8px;
+        }
+        .add-btn i {
+            font-size: 1.15rem;
         }
         .add-btn:hover {
-            background: #357ae8;
+            background: #2563eb;
         }
         .container {
             max-width: 1100px;
@@ -205,48 +219,96 @@ $error = isset($_GET['error']);
         }
         .modal-content {
             background: #fff;
-            border-radius: 14px;
-            padding: 32px 28px 18px 28px;
-            max-width: 400px;
-            width: 95%;
+            border-radius: 16px;
+            padding: 38px 36px 24px 36px;
+            max-width: 480px;
+            width: 98%;
             position: relative;
-            box-shadow: 0 4px 32px rgba(0,0,0,0.13);
+            box-shadow: 0 6px 32px rgba(0,0,0,0.13);
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
         }
         .modal-content h2 {
-            margin-top: 0;
-            font-size: 1.4rem;
+            margin: 0 0 22px 0;
+            font-size: 1.35rem;
             font-weight: 600;
             color: #222;
+            letter-spacing: 0.5px;
+            text-align: left;
         }
         .close {
             position: absolute;
             right: 18px;
-            top: 12px;
-            font-size: 1.6rem;
-            color: #aaa;
+            top: 16px;
+            font-size: 1.5rem;
+            color: #bbb;
             cursor: pointer;
+            transition: color 0.18s;
+            z-index: 10;
         }
-        .modal-content input, .modal-content textarea, .modal-content select {
+        .close:hover {
+            color: #4f8cff;
+        }
+        .modal-content form {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+        }
+        .modal-content input,
+        .modal-content select,
+        .custom-file-label,
+        .modal-content textarea {
             width: 100%;
+            height: 54px;
             margin-bottom: 14px;
-            padding: 8px 10px;
-            border: 1px solid #e0e0e0;
-            border-radius: 6px;
-            font-size: 1rem;
+            padding: 0 16px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.08rem;
             font-family: inherit;
-            background: #f8f9fa;
+            background: #f4f6fa;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+            transition: box-shadow 0.18s, background 0.18s;
+            display: block;
+            box-sizing: border-box;
+        }
+        .modal-content textarea {
+            min-height: 54px;
+            max-height: 120px;
+            padding-top: 16px;
+            padding-bottom: 16px;
+            resize: vertical;
+        }
+        .custom-file-label {
+            color: #888;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+            transition: background 0.18s;
+            text-align: left;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            height: 54px;
+        }
+        .custom-file-label.selected {
+            color: #222;
         }
         .modal-content button[type=submit] {
             width: 100%;
             background: #4f8cff;
             color: #fff;
             border: none;
-            border-radius: 6px;
-            padding: 10px 0;
-            font-size: 1rem;
+            border-radius: 10px;
+            padding: 15px 0;
+            font-size: 1.08rem;
             font-weight: 600;
             cursor: pointer;
-            margin-top: 8px;
+            margin-top: 10px;
+            box-shadow: 0 2px 8px rgba(79,140,255,0.07);
+            transition: background 0.18s;
         }
         .modal-content button[type=submit]:hover {
             background: #2563eb;
@@ -270,8 +332,18 @@ $error = isset($_GET['error']);
         }
         @media (max-width: 600px) {
             .header h1 { font-size: 1.5rem; }
-            .add-btn { right: 12px; top: 16px; padding: 8px 16px; }
+            .add-btn, .category-filter {
+                width: 100%;
+                margin-left: 0;
+            }
             .container { padding: 0 4px; }
+            .modal-content {
+                max-width: 98vw;
+                padding: 18px 4vw 18px 4vw;
+            }
+            .modal-content h2 {
+                font-size: 1.1rem;
+            }
         }
         .filter-bar {
             background: none;
@@ -287,7 +359,7 @@ $error = isset($_GET['error']);
             gap: 16px;
             align-items: center;
             width: 100%;
-            max-width: 600px;
+            max-width: 900px;
         }
         .search-wrapper {
             position: relative;
@@ -296,7 +368,7 @@ $error = isset($_GET['error']);
         .search-input {
             width: 100%;
             padding: 12px 44px 12px 18px;
-            border: 2px solid #d3d3d3;
+            border: 2px solid #f3d37a;
             border-radius: 32px;
             font-size: 1.15rem;
             background: #fff;
@@ -318,29 +390,42 @@ $error = isset($_GET['error']);
         }
         .category-filter {
             flex: 0 0 auto;
-            padding: 10px 14px;
+            padding: 12px 18px;
             border: 1px solid #e0e0e0;
-            border-radius: 6px;
-            font-size: 1rem;
+            border-radius: 10px;
+            font-size: 1.08rem;
             background: #f8f9fa;
             transition: border 0.2s;
+            height: 48px;
+            margin-left: 8px;
         }
         .category-filter:focus {
             border: 1.5px solid #4f8cff;
             outline: none;
         }
-        @media (max-width: 600px) {
-            .filter-bar {
-                padding: 0 8px 16px 8px;
-            }
-            .filter-bar form {
-                flex-direction: column;
-                gap: 10px;
-                max-width: 100%;
-            }
-            .search-wrapper {
-                width: 100%;
-            }
+        /* Minimalist ChatBot Help Button */
+        .chatbot-help-btn {
+            position: fixed;
+            bottom: 32px;
+            right: 32px;
+            z-index: 1500;
+            background: none;
+            color: #4f8cff;
+            border: none;
+            border-radius: 0;
+            padding: 6px 10px;
+            font-size: 1.05rem;
+            font-family: 'Montserrat', Arial, sans-serif;
+            cursor: pointer;
+            text-decoration: none;
+            transition: color 0.18s;
+            box-shadow: none;
+            outline: none;
+            display: inline-block;
+        }
+        .chatbot-help-btn:hover {
+            color: #2563eb;
+            text-decoration: underline;
         }
     </style>
 </head>
@@ -354,10 +439,8 @@ $error = isset($_GET['error']);
             </a>
         </div>
     </div>
-    <div class="add-recipe-bar">
-        <button class="add-btn" onclick="openAddRecipeModal()"><i class="fas fa-plus"></i> Add Recipe</button>
-    </div>
-    <?php if ($success): ?>
+
+    <?php if ($show_success): ?>
         <div class="toast" id="toast-success" style="display:block;">Recipe added successfully!</div>
     <?php elseif (isset($_GET['error'])): ?>
         <div class="toast error" id="toast-error" style="display:block;">
@@ -415,6 +498,7 @@ $error = isset($_GET['error']);
                     <option value="lunch" <?php if(isset($_GET['category']) && $_GET['category']==='lunch') echo 'selected'; ?>>Lunch</option>
                     <option value="dinner" <?php if(isset($_GET['category']) && $_GET['category']==='dinner') echo 'selected'; ?>>Dinner</option>
                 </select>
+                <button type="button" class="add-btn" onclick="openAddRecipeModal()"><i class="fas fa-plus"></i> Add Recipe</button>
             </form>
         </div>
         <div class="grid">
@@ -443,12 +527,12 @@ $error = isset($_GET['error']);
     <!-- Add Recipe Modal -->
     <div id="addRecipeModal" class="modal">
         <div class="modal-content">
-            <span class="close" onclick="closeAddRecipeModal()">&times;</span>
+            <span class="close" onclick="closeAddRecipeModal()" tabindex="0" aria-label="Close">&times;</span>
             <h2>Add Recipe</h2>
-            <form action="add_recipe.php" method="post" enctype="multipart/form-data">
+            <form action="add_recipe.php" method="post" enctype="multipart/form-data" autocomplete="off">
                 <input type="text" name="recipe_name" placeholder="Recipe Name" required>
                 <select name="category" required>
-                    <option value="">Select Category</option>
+                    <option value="">Category</option>
                     <option value="vegan">Vegan</option>
                     <option value="vegetarian">Vegetarian</option>
                     <option value="meat">Meat</option>
@@ -462,12 +546,16 @@ $error = isset($_GET['error']);
                 <input type="number" name="recipe_cookingtime" placeholder="Cooking Time (minutes)" required>
                 <textarea name="recipe_ingredient" placeholder="Ingredients" required></textarea>
                 <textarea name="recipe_cookstep" placeholder="Steps" required></textarea>
-                <input type="file" name="recipe_image" accept="image/*" required>
+                <div class="file-input-wrapper">
+                    <!-- <label for="recipe_image" class="custom-file-label" id="fileLabel" tabindex="0">Choose Image</label> -->
+                    <input type="file" name="recipe_image" id="recipe_image" accept="image/*" required>
+                </div>
                 <input type="hidden" name="user_id" value="<?php echo $_SESSION['user_id']; ?>">
                 <button type="submit">Submit</button>
             </form>
         </div>
     </div>
+    <a href="#" class="chatbot-help-btn">Need Help? Ask The ChatBot!</a>
     <script>
         function openAddRecipeModal() {
             document.getElementById('addRecipeModal').style.display = 'flex';
@@ -495,6 +583,26 @@ $error = isset($_GET['error']);
         document.querySelector('.category-filter').addEventListener('change', function() {
             this.form.submit();
         });
+        // Custom file input label
+        const fileInput = document.getElementById('recipe_image');
+        const fileLabel = document.getElementById('fileLabel');
+        if (fileInput && fileLabel) {
+            fileInput.addEventListener('change', function() {
+                if (this.files && this.files[0]) {
+                    fileLabel.textContent = this.files[0].name;
+                    fileLabel.classList.add('selected');
+                } else {
+                    fileLabel.textContent = 'Choose Image';
+                    fileLabel.classList.remove('selected');
+                }
+            });
+            // Make label clickable via keyboard
+            fileLabel.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    fileInput.click();
+                }
+            });
+        }
     </script>
 </body>
 </html> 
