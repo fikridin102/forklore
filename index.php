@@ -1,6 +1,6 @@
 <?php
-
-include('../dbconnect.php');
+session_start();
+include('dbconnect.php');
 
 ?>
 
@@ -13,7 +13,7 @@ include('../dbconnect.php');
     <meta name="viewport" content="width=device-width" , initial-scale=1.0>
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <Title>Sign Up</Title>
-    <link rel="stylesheet" type="text/css" href="../assets/styling/signin.css">
+    <link rel="stylesheet" type="text/css" href="assets/styling/signin.css">
     
 
 
@@ -27,7 +27,7 @@ include('../dbconnect.php');
 
 
  
-          <form action="login.php" method="POST" class="sign-in-form">
+          <form action="module3_User Authentication/login.php" method="POST" class="sign-in-form">
             <h2 class="title">login</h2>
             <?php if (isset($error)): ?>
                 <div class="error-message"><?php echo $error; ?></div>
@@ -47,7 +47,7 @@ include('../dbconnect.php');
             <button type="submit" id="button-1" class="button">Login</button>
 
           </form>
-          <form action="register.php" method="post" class="sign-up-form">
+          <form action="module3_User Authentication/register.php" method="post" class="sign-up-form">
             <h2 class="title">Sign up</h2>
               <div class="input-field">
               <i class="fas fa-user"></i>
@@ -60,7 +60,7 @@ include('../dbconnect.php');
             <div class="input-field">
               <i class="fas fa-envelope"></i>
               <input type="email" name="user_email" placeholder="Email" required />
-              <!-- 'required' attribute ensures that the field must be filled before submitting -->
+             
           </div>
             <div class="input-field">
               <i class="fas fa-lock"></i>
@@ -84,7 +84,7 @@ include('../dbconnect.php');
               Sign up
             </button>
           </div>
-          <img src="img/log.svg" class="image" alt="" /> <!-- TODO: Add log.svg or update path -->
+          <img src="img/log.svg" class="image" alt="" /> 
         </div>
         <div class="panel right-panel">
           <div class="content">
@@ -97,11 +97,11 @@ include('../dbconnect.php');
               Sign in
             </button>
           </div>
-          <img src="img/register.svg" class="image" alt="" /> <!-- TODO: Add register.svg or update path -->
+          <img src="img/register.svg" class="image" alt="" /> 
         </div>
       </div>
     </div>
   </body>
     
- <script src="signin.js"></script>
+ <script src="module3_User Authentication/signin.js"></script>
 </html>

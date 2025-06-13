@@ -1,12 +1,16 @@
 <?php
 session_start();
-include('dbconnect.php');
 
-// Check if user is logged in
 if (!isset($_SESSION['user_id'])) {
-    header("Location: module3_User Authentication/signin/signin.php");
+    header("Location: index.php");
     exit();
 }
+
+$user_id = $_SESSION['user_id'];
+
+include('dbconnect.php');
+
+
 
 // Filter/search logic
 $search = isset($_GET['search']) ? trim($_GET['search']) : '';
@@ -352,7 +356,7 @@ $error = isset($_GET['error']);
             <a href="module3_User Authentication/user_profile.php" class="btn logout-btn">
                 <i class="fas fa-user-circle"></i> My Profile
             </a>
-            <a href="module3_User Authentication/signin/signin.php?logout=1" class="btn logout-btn">
+            <a href="module3_User Authentication/logout.php" class="btn logout-btn">
                 <i class="fas fa-sign-out-alt"></i> Logout
             </a>
         </div>
@@ -425,7 +429,7 @@ $error = isset($_GET['error']);
                 <?php while($row = $result->fetch_assoc()): ?>
                     <div class="card">
                         <img src="<?php echo htmlspecialchars($row['image_url']); ?>" alt="Recipe Image">
-                        <div class="category-badge"><?php echo htmlspecialchars($row['category'] ?: 'Uncategorized'); ?></div>
+                        <div class="category-badge"><?php echo htmlspecialchars(isset($row['category']) ? $row['category'] : 'Uncategorized'); ?></div>
                         <h3><?php echo htmlspecialchars($row['recipe_name']); ?></h3>
                         <div class="meta">
                             <i class="fas fa-clock"></i> Prep: <?php echo htmlspecialchars($row['recipe_preptime']); ?> min &middot;

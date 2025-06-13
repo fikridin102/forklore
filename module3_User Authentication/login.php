@@ -1,5 +1,6 @@
 <?php
 session_start();
+
 include('../dbconnect.php');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -35,12 +36,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit();
         } else {
             $error = "Invalid username, password, or role!";
-             header('Location:  index.php');
+             header('Location:  ../index.php');
             exit();
         }
     } else {
         $error = "Invalid username, password, or role!";
-                     header('Location:  index.php');
+                     header('Location:  ../index.php');
             exit();
     }
 }

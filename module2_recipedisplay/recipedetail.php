@@ -3,7 +3,7 @@ session_start();
 include('../dbconnect.php');
 
 if (!isset($_SESSION['user_id'])) {
-    header("Location: ../module3_User Authentication/signin/signin.php");
+    header("Location: index.php");
     exit();
 }
 
